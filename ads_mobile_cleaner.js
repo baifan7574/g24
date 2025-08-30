@@ -1,27 +1,33 @@
 (function() {
   if (window.innerWidth <= 767) {
-    var isHomePage = (location.pathname === "/" || location.pathname.endsWith("index.html"));
+    function removeAds() {
+      // 删除竖条、浮窗、弹窗
+      document.querySelectorAll(
+        '.nb-stick.nb-left, .nb-stick.nb-right, #nb-float, .nb-float, .nb-stick-float, .nb-modal'
+      ).forEach(el => el.remove());
 
-    if (isHomePage) {
-      function removeAds() {
-        // 清理竖条 / 浮窗 / 弹窗
-        var ads = document.querySelectorAll(
-          '.nb-stick.nb-left[data-nb="left"], .nb-stick.nb-right[data-nb="right"], #nb-float, .nb-float, .nb-stick-float, .nb-modal'
+      // 删除覆盖在内容上的“方块广告”，但保留横幅
+      document.querySelectorAll('div').forEach(el => {
+        const style = window.getComputedStyle(el);
+        const w = parseInt(style.width);
+        const h = parseInt(style.height);
+
+        // 过滤掉横幅常见尺寸 (728x90, 320x50, 300x100, 774x290)
+        const isBannerSize = (
+          (w >= 300 && w <= 330 && (h === 50 || h === 100)) ||
+          (w === 728 && h === 90) ||
+          (w === 774 && h === 290)
         );
-        ads.forEach(function(el) { el.remove(); });
 
-        // 额外清理“覆盖型方块广告”
-        var overlays = document.querySelectorAll('div[style*="position:absolute"], div[style*="position:fixed"]');
-        overlays.forEach(function(el) {
-          // 如果里面包含广告联盟的 iframe 或 juicy 字样，就删除
-          if (el.innerHTML.includes("juicy") || el.innerHTML.includes("adsbyjuicy") || el.querySelector("iframe")) {
-            el.remove();
-          }
-        });
-      }
-
-      document.addEventListener("DOMContentLoaded", removeAds);
-      setInterval(removeAds, 1000); // 每秒检查一次
+        if ((style.position === "fixed" || style.position === "absolute") &&
+            !isBannerSize &&
+            (el.innerHTML.includes("juicy") || el.innerHTML.includes("adsbyjuicy") || el.querySelector("iframe"))) {
+          el.remove();
+        }
+      });
     }
+
+    document.addEventListener("DOMContentLoaded", removeAds);
+    setInterval(removeAds, 1000);
   }
 })();
