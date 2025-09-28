@@ -100,3 +100,5 @@ tags\soft-portraits_4.html
 tags\soft-portraits_5.html
 tags\soft-portraits_6.html
 tags\soft-portraits_7.html
+index.html
+link_list.html
